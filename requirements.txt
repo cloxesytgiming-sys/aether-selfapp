@@ -1,0 +1,8 @@
+Flask>=3.0
+python-dotenv>=1.0
+# Bot worker - install in a venv WITHOUT discord.py (the two clash). It also provides aiohttp,
+# which manager.py (the keygen bot) uses.
+discord.py-self
+deep-translator
+# Recommended for production dashboard:
+# gunicorn>=22.0   (use a single worker: gunicorn -w 1 --threads 8 dashboard:app)

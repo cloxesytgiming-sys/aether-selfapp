@@ -1,0 +1,11 @@
+.env
+*.sqlite3
+__pycache__/
+venv/
+.venv/
+bot_logs/
+.secret_key
+selfbot_state.json
+keys.txt
+keys.txt.lock/
+keys.txt.tmp
