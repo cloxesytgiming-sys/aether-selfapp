@@ -1,0 +1,84 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'overview' %}
+{% block title %}Overview · Aether{% endblock %}
+{% block crumb %}WORKSPACE / OVERVIEW{% endblock %}
+{% block heading %}Account <span>overview.</span>{% endblock %}
+{% block content %}
+{% set c = snap.get('counts') or {} %}
+{% set n = snap.get('nitro') or {} %}
+{% if a.state == 'offline' %}
+<div class="banner warn">{{ icon('power', 18) }}<div><b>This account is offline.</b> {% if snap_updated %}Showing data from {{ snap_updated|ago }}.{% else %}Start it to load live profile data.{% endif %}{% if a.last_error %}<br><small>{{ a.last_error }}</small>{% endif %}</div><button class="btn btn-sm btn-primary" data-power="start" data-id="{{ a.id }}">{{ icon('play', 15) }} Start bot</button></div>
+{% endif %}
+
+<section class="profile" style="--accent: {{ snap.get('accent') or '#47c2ff' }}">
+  <div class="profile-banner" {% if snap.get('banner_url') %}style="background-image:url('{{ snap.banner_url }}')"{% endif %}></div>
+  <div class="profile-body">
+    <div class="avatar xl">
+      {% if snap.get('avatar_url') %}<img class="av-img" src="{{ snap.avatar_url }}" alt="" referrerpolicy="no-referrer">{% endif %}
+      <b>{{ (a.label or '?')[:1]|upper }}</b>
+      {% if snap.get('decoration_url') %}<img class="av-deco" src="{{ snap.decoration_url }}" alt="" referrerpolicy="no-referrer">{% endif %}
+      <i class="dot {{ a.state }}" data-state-dot="{{ a.id }}"></i>
+    </div>
+    <div class="profile-main">
+      <h2>{{ snap.get('global_name') or snap.get('display_name') or a.display_name or a.label }}</h2>
+      <p class="muted handle">{% if snap.get('username') %}@{{ snap.username }} · {% endif %}{% if snap.get('id') %}ID {{ snap.id }}{% else %}{{ a.label }}{% endif %}</p>
+      <div class="chips">
+        {% if n.get('type') and n.type != 'none' %}<span class="chip lime">{{ icon('bolt', 13) }} {{ n.type|nitro_name }}</span>{% endif %}
+        {% for b in snap.get('badges') or [] %}<span class="chip">{{ b }}</span>{% endfor %}
+        {% if snap.get('verified') %}<span class="chip sky">Verified</span>{% endif %}
+        {% if quests.all %}<a class="chip lime" href="/quests">{{ icon('flag', 13) }} {{ quests.running }} running · {{ quests.available + quests.new }} available · {{ quests.completed }} done</a>{% endif %}
+        {% if snap.get('mfa') %}<span class="chip sky">2FA on</span>{% endif %}
+      </div>
+      {% if snap.get('bio') %}<p class="bio">{{ snap.bio }}</p>{% endif %}
+    </div>
+    <div class="profile-actions">
+      {% if a.state == 'offline' %}<button class="btn btn-primary" data-power="start" data-id="{{ a.id }}">{{ icon('play', 16) }} Start bot</button>
+      {% else %}<button class="btn" data-power="restart" data-id="{{ a.id }}">{{ icon('refresh', 16) }} Restart</button><button class="btn btn-danger" data-power="stop" data-id="{{ a.id }}">{{ icon('stop', 16) }} Stop</button>{% endif %}
+      <button class="btn" id="refreshSnap" {% if a.state != 'online' %}disabled{% endif %}>{{ icon('refresh', 16) }} Refresh data</button>
+    </div>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <article class="stat-card"><div class="stat-top"><span>Account age</span><span class="stat-icon blue">{{ icon('calendar', 20) }}</span></div><strong class="sm">{{ snap.get('created_at')|age }}</strong><div class="stat-foot"><span class="trend">CREATED</span><span class="muted">{{ snap.get('created_at')|fdate }}</span></div></article>
+  <article class="stat-card"><div class="stat-top"><span>Nitro</span><span class="stat-icon lime">{{ icon('bolt', 20) }}</span></div><strong class="sm">{{ (n.get('type') or 'none')|nitro_name }}</strong><div class="stat-foot"><span class="trend lime-text">{% if n.get('since') %}{{ n.since|age }} SUBSCRIBED{% else %}NO DURATION{% endif %}</span><span class="muted">{% if n.get('renews') %}Renews {{ n.renews|fdate }}{% elif n.get('boosting_since') %}Boosting {{ n.boosting_since|age }}{% else %}—{% endif %}</span></div></article>
+  <article class="stat-card"><div class="stat-top"><span>Servers</span><span class="stat-icon violet">{{ icon('servers', 20) }}</span></div><strong data-bind="snapshot.counts.servers" data-fmt="num">{{ c.get('servers', 0) }}</strong><div class="stat-foot"><span class="trend">GUILDS</span><span class="muted"><span data-bind="snapshot.counts.members" data-fmt="num">{{ c.get('members', 0) }}</span> members total</span></div></article>
+  <article class="stat-card"><div class="stat-top"><span>Friends</span><span class="stat-icon blue">{{ icon('friends', 20) }}</span></div><strong data-bind="snapshot.counts.friends" data-fmt="num">{{ c.get('friends', 0) }}</strong><div class="stat-foot"><span class="trend">FRIENDS</span><span class="muted"><span data-bind="snapshot.counts.incoming">{{ c.get('incoming', 0) }}</span> pending requests</span></div></article>
+  <article class="stat-card"><div class="stat-top"><span>Messages sent</span><span class="stat-icon lime">{{ icon('message', 20) }}</span></div><strong data-bind="stats.messages_sent" data-fmt="num">{{ stats.get('messages_sent', 0) }}</strong><div class="stat-foot"><span class="trend lime-text">TRACKED</span><span class="muted">Since first start</span></div></article>
+  <article class="stat-card"><div class="stat-top"><span>Open DMs</span><span class="stat-icon violet">{{ icon('mail', 20) }}</span></div><strong data-bind="snapshot.counts.dms" data-fmt="num">{{ c.get('dms', 0) }}</strong><div class="stat-foot"><span class="trend">CHANNELS</span><span class="muted"><span data-bind="unread">0</span> unread alerts</span></div></article>
+  <article class="stat-card"><div class="stat-top"><span>Quests</span><span class="stat-icon blue">{{ icon('flag', 20) }}</span></div><strong>{{ quests.completed }}<span class="muted of">/{{ quests.all }}</span></strong><div class="stat-foot"><span class="trend">{{ quests.running }} RUNNING</span><span class="muted">{{ quests.available + quests.new }} available · {{ quests.paused }} paused</span></div></article>
+  <article class="stat-card"><div class="stat-top"><span>Snipes</span><span class="stat-icon lime">{{ icon('target', 20) }}</span></div><strong data-bind="sniper.total_success" data-fmt="num">{{ sniper.nitro.success + sniper.giveaway.success }}</strong><div class="stat-foot"><span class="trend lime-text">NITRO {{ sniper.nitro.success }}</span><span class="muted">Giveaways {{ sniper.giveaway.success }}</span></div></article>
+</section>
+
+<section class="content-grid">
+  <article class="panel">
+    <div class="panel-head"><div><div class="eyebrow">LIVE FEED</div><h3>Recent activity</h3></div><a class="btn btn-sm" href="/logs">All logs {{ icon('arrow', 14) }}</a></div>
+    <div class="table-wrap"><table><thead><tr><th>EVENT</th><th>DETAIL</th><th>SERVER / USER</th><th>TIME</th></tr></thead><tbody id="recentLogs"></tbody></table></div>
+  </article>
+  <div class="stack">
+    {% include "_hypesquad_card.html" %}
+    <article class="panel">
+      <div class="panel-head"><div><div class="eyebrow">ACCOUNT</div><h3>Details</h3></div></div>
+      <dl class="kv">
+        <dt>Display name</dt><dd>{{ snap.get('display_name') or '—' }}</dd>
+        <dt>Username</dt><dd>{{ snap.get('username') or '—' }}</dd>
+        <dt>User ID</dt><dd class="mono">{{ snap.get('id') or '—' }}</dd>
+        <dt>Created</dt><dd>{{ snap.get('created_at')|fdate }}</dd>
+        <dt>Nitro since</dt><dd>{% if n.get('since') %}{{ n.since|fdate }} ({{ n.since|age }}){% else %}—{% endif %}</dd>
+        <dt>Boosting since</dt><dd>{% if n.get('boosting_since') %}{{ n.boosting_since|fdate }}{% else %}—{% endif %}</dd>
+        <dt>Email</dt><dd>{{ snap.get('email') or '—' }}</dd>
+        <dt>Phone linked</dt><dd>{{ 'Yes' if snap.get('has_phone') else 'No' }}</dd>
+        <dt>Locale</dt><dd>{{ snap.get('locale') or '—' }}</dd>
+        <dt>Blocked users</dt><dd>{{ c.get('blocked', 0) }}</dd>
+        <dt>Latency</dt><dd>{% if snap.get('latency_ms') %}{{ snap.latency_ms }} ms{% else %}—{% endif %}</dd>
+        <dt>Connected</dt><dd>{{ snap.get('connected_at')|ago }}</dd>
+      </dl>
+    </article>
+    <article class="panel">
+      <div class="panel-head"><div><div class="eyebrow">ALERTS</div><h3>Latest notifications</h3></div><a class="btn btn-sm" href="/inbox#notifications">Inbox {{ icon('arrow', 14) }}</a></div>
+      <div class="notif-list" id="recentNotifs"></div>
+    </article>
+  </div>
+</section>
+{% endblock %}

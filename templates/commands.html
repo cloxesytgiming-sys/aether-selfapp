@@ -1,0 +1,156 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'commands' %}
+{% block title %}Commands · AetherPanel{% endblock %}
+{% block crumb %}CONTROL / COMMANDS{% endblock %}
+{% block heading %}Run <span>commands.</span>{% endblock %}
+{% macro target(label='Channel') -%}
+<div class="target" data-target>
+  <label>{{ label }}</label>
+  <div class="two">
+    <select class="input t-server" aria-label="Server"><option value="">Choose server…</option><option value="dm">Direct messages</option>{% for s in servers %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select>
+    <select class="input t-channel" name="channel_id" required aria-label="Channel"><option value="">Choose channel…</option></select>
+  </div>
+</div>
+{%- endmacro %}
+{% block content %}
+{% if a.state != 'online' %}<div class="banner warn">{{ icon('power', 18) }}<div><b>{{ a.label }} is {{ a.state }}.</b> Commands that talk to Discord need the bot online.</div><button class="btn btn-sm btn-primary" data-power="start" data-id="{{ a.id }}">{{ icon('play', 15) }} Start bot</button></div>{% endif %}
+
+<div class="tabs" data-tabs>
+  <button class="tab active" data-tab="general">{{ icon('terminal', 16) }} General</button>
+  <button class="tab" data-tab="userguild">{{ icon('user', 16) }} User &amp; Guild</button>
+  <button class="tab" data-tab="utility">{{ icon('bolt', 16) }} Utility</button>
+  <button class="tab" data-tab="presence">{{ icon('spark', 16) }} Presence</button>
+  <button class="tab" data-tab="automation">{{ icon('refresh', 16) }} Automation</button>
+  <button class="tab" data-tab="moderation">{{ icon('shield', 16) }} Moderation</button>
+  <button class="tab" data-tab="fun">{{ icon('heart', 16) }} Fun</button>
+</div>
+
+<section class="tab-panel active" data-panel="general"><div class="cards">
+  <form class="cmd-card cmd" data-action="ping"><h4>Ping</h4><p class="muted">Gateway and REST latency.</p><button class="btn btn-primary">Run</button><div class="out" hidden></div></form>
+  <form class="cmd-card cmd" data-action="info"><h4>Info</h4><p class="muted">Uptime, servers, versions.</p><button class="btn btn-primary">Run</button><div class="out" hidden></div></form>
+  <form class="cmd-card" id="prefixForm"><h4>Chat prefix</h4><p class="muted">The prefix for commands typed in Discord.</p><input class="input" id="prefixInput" maxlength="3" value="{{ settings.prefix }}"><button class="btn">Save</button></form>
+  <article class="cmd-card wide"><h4>Command reference</h4><p class="muted">Everything below works from Discord chat (as this account) and from this dashboard.</p>
+    <div class="table-wrap"><table><thead><tr><th>CATEGORY</th><th>CHAT COMMAND</th><th>WHAT IT DOES</th></tr></thead><tbody>
+      <tr><td>General</td><td class="mono">{{ settings.prefix }}help · ping · info</td><td>Command list, latency, account info</td></tr>
+      <tr><td>User/Guild</td><td class="mono">user · server · avatar</td><td>Look up users, servers and avatars</td></tr>
+      <tr><td>Utility</td><td class="mono">purge [n] · snipe · translate &lt;lang&gt; &lt;text&gt;</td><td>Delete your messages, last deleted message, translation</td></tr>
+      <tr><td>Presence</td><td class="mono">rpc · status · stream</td><td>Activity, online status, streaming</td></tr>
+      <tr><td>Automation</td><td class="mono">autoreact · autoreply · afk</td><td>Auto reactions, replies, away mode</td></tr>
+      <tr><td>Moderation</td><td class="mono">ban · unban · kick · mute · unmute · lock · unlock · channelcreate · channelrename</td><td>Server moderation (needs permissions there)</td></tr>
+      <tr><td>Crypto</td><td class="mono">crypto &lt;coin&gt; · crypto list · crypto add</td><td>Posts your saved wallet address (manage on the Crypto page)</td></tr>
+      <tr><td>Snipers</td><td class="mono">gwsniper · nitrosniper · vanity</td><td>Toggle the giveaway / Nitro snipers, manage the vanity sniper</td></tr>
+      <tr><td>Fun</td><td class="mono">howgay · howsimp · ship · hug · kiss · fkick · 8ball … ({{ settings.prefix }}fun)</td><td>Meters, ships, action GIFs and mini games (see the Fun tab)</td></tr>
+    </tbody></table></div></article>
+</div></section>
+
+<section class="tab-panel" data-panel="userguild"><div class="cards">
+  <form class="cmd-card cmd" data-action="user"><h4>User lookup</h4><p class="muted">Profile, avatar and banner for any user ID.</p><input class="input" name="user_id" placeholder="User ID" inputmode="numeric" required><button class="btn btn-primary">Look up</button><div class="out" hidden></div></form>
+  <form class="cmd-card cmd" data-action="server"><h4>Server info</h4><p class="muted">Details for one of this account's servers.</p><select class="input" name="guild_id" required><option value="">Choose server…</option>{% for s in servers %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select><button class="btn btn-primary">Show</button><div class="out" hidden></div></form>
+  <form class="cmd-card cmd" data-action="avatar"><h4>Avatar</h4><p class="muted">Avatar + decoration. Leave empty for yourself.</p><input class="input" name="user_id" placeholder="User ID (optional)" inputmode="numeric"><button class="btn btn-primary">Fetch</button><div class="out" hidden></div></form>
+</div></section>
+
+<section class="tab-panel" data-panel="utility"><div class="cards">
+  <form class="cmd-card cmd wide" data-action="send"><h4>Send message</h4>{{ target('Send to') }}<textarea class="input" name="content" rows="3" maxlength="2000" placeholder="Message" required></textarea><button class="btn btn-primary">{{ icon('send', 15) }} Send</button><div class="out" hidden></div></form>
+  <form class="cmd-card cmd" data-action="purge"><h4>Purge</h4><p class="muted">Deletes only your own messages (max 100).</p>{{ target() }}<input class="input" name="amount" type="number" min="1" max="100" value="10"><button class="btn btn-danger">Purge</button><div class="out" hidden></div></form>
+  <form class="cmd-card cmd" data-action="snipe"><h4>Snipe</h4><p class="muted">Last deleted message in a channel (memory only).</p>{{ target() }}<button class="btn btn-primary">Snipe</button><div class="out" hidden></div></form>
+  <form class="cmd-card cmd" data-action="translate"><h4>Translate</h4><p class="muted">Works even while the bot is offline.</p><input class="input" name="lang" placeholder="Language code (es, fr, de…)" required><textarea class="input" name="text" rows="3" placeholder="Text" required></textarea><button class="btn btn-primary">Translate</button><div class="out" hidden></div></form>
+</div></section>
+
+<section class="tab-panel" data-panel="presence"><div class="cards">
+  <form class="cmd-card" id="statusForm"><h4>Online status</h4><p class="muted">Saved to the account and applied live.</p>
+    <select class="input" id="pStatus">{% for s in ['online','idle','dnd','invisible'] %}<option value="{{ s }}" {{ 'selected' if settings.presence.status == s }}>{{ s|capitalize }}</option>{% endfor %}</select><button class="btn btn-primary">Apply</button></form>
+  <style>
+    .dev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .dev-opt{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:12px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);transition:.15s}
+    .dev-opt span{font-size:22px;line-height:1}
+    .dev-opt img{width:32px;height:32px;object-fit:contain}
+    .dev-opt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+    .dev-opt:has(input:checked){color:var(--lime);border-color:rgba(184,244,60,.45);background:rgba(184,244,60,.08)}
+    @media(max-width:420px){.dev-grid{grid-template-columns:repeat(2,1fr)}}
+  </style>
+  <form class="cmd-card" id="deviceForm"><h4>Device</h4>
+    <p class="muted">Show as online from another device. VR opens a Meta Quest session; desktop is your normal session.</p>
+    <div class="dev-grid">{% for k, fallback in [('desktop','🖥'),('vr','🥽'),('mobile','📱'),('console','🎮')] %}<label class="dev-opt"><input type="radio" name="device" value="{{ k }}" {{ 'checked' if settings.device.type == k }}><img src="{{ url_for('device_icon', kind=k) }}" alt="" data-fallback="{{ fallback }}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:this.dataset.fallback}))">{{ k }}</label>{% endfor %}</div>
+    <button class="btn btn-primary">Apply</button></form>
+  {% macro rf(label, name, value, ph='', max=128) -%}
+  <div class="rpc-f"><label>{{ label }}</label><input class="input" name="{{ name }}" value="{{ value }}" placeholder="{{ ph }}" maxlength="{{ max }}"></div>
+  {%- endmacro %}
+  {% set r = settings.rpc %}{% set b1 = r.buttons[0] if r.buttons|length > 0 else {} %}{% set b2 = r.buttons[1] if r.buttons|length > 1 else {} %}
+  <style>
+    .rpc-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:22px;align-items:start}
+    .rpc-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .rpc-f{display:flex;flex-direction:column;gap:6px;min-width:0}
+    .rpc-prev{position:sticky;top:90px;display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line-2);min-width:0}
+    .rpc-prev .rp-head{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+    .rpc-prev .rp-row{display:flex;gap:12px;align-items:center;min-width:0}
+    .rpc-prev .rp-art{position:relative;flex:0 0 64px;height:64px;border-radius:12px;background:rgba(255,255,255,.06);overflow:hidden}
+    .rpc-prev .rp-art img{width:100%;height:100%;object-fit:cover;display:block}
+    .rpc-prev .rp-art img.rp-small{position:absolute;right:-2px;bottom:-2px;width:24px;height:24px;border-radius:50%;border:2px solid var(--surface-2)}
+    .rpc-prev .rp-text{display:flex;flex-direction:column;min-width:0;gap:2px;font-size:13px}
+    .rpc-prev .rp-text b{font-size:14px}
+    .rpc-prev .rp-text span{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .rpc-prev .rp-btns{display:flex;flex-direction:column;gap:8px}
+    .rpc-prev .rp-btns a{display:block;text-align:center;padding:8px;border-radius:10px;background:rgba(255,255,255,.07);font-size:13px;font-weight:600;pointer-events:none}
+    @media(max-width:900px){.rpc-layout{grid-template-columns:1fr}.rpc-prev{position:static}}
+    @media(max-width:520px){.rpc-fields{grid-template-columns:1fr}}
+  </style>
+  <form class="cmd-card wide" id="rpcForm" autocomplete="off"><h4>Rich Presence</h4>
+    <p class="muted">Fully custom activity: images, buttons, timer and party size. Applied live. Images need an Application ID (Discord Developer Portal, your app, General Information). Other people see your buttons, you don't.</p>
+    <label class="switch-row big"><span>Rich presence is <b id="rpcState">{{ 'ON' if r.enabled else 'off' }}</b></span><span class="switch"><input type="checkbox" name="enabled" {{ 'checked' if r.enabled }}><i></i></span></label>
+    <div class="rpc-layout">
+      <div class="rpc-fields">
+        <div class="rpc-f"><label>Type</label><select class="input" name="type">{% for k in ['playing','streaming','listening','watching','competing'] %}<option value="{{ k }}" {{ 'selected' if r.type == k }}>{{ k|capitalize }}</option>{% endfor %}</select></div>
+        {{ rf('Name', 'name', r.name, 'Aether Panel') }}
+        {{ rf('Details (line 1)', 'details', r.details, 'What you are doing') }}
+        {{ rf('State (line 2)', 'state', r.state, 'Extra info') }}
+        {{ rf('Large image URL', 'large_image', r.large_image, 'https://…/image.png', 512) }}
+        {{ rf('Large image text', 'large_text', r.large_text, 'Shown on hover') }}
+        {{ rf('Small image URL', 'small_image', r.small_image, 'https://…/icon.png', 512) }}
+        {{ rf('Small image text', 'small_text', r.small_text, 'Shown on hover') }}
+        {{ rf('Button 1 label', 'btn1_label', b1.label|default(''), 'Join us', 32) }}
+        {{ rf('Button 1 link', 'btn1_url', b1.url|default(''), 'https://…', 512) }}
+        {{ rf('Button 2 label', 'btn2_label', b2.label|default(''), 'Website', 32) }}
+        {{ rf('Button 2 link', 'btn2_url', b2.url|default(''), 'https://…', 512) }}
+        <div class="rpc-f"><label>Timer</label><select class="input" name="timer_mode">{% for k, t in [('none','No timer'),('elapsed','Elapsed (counts up)'),('countdown','Countdown (counts down)')] %}<option value="{{ k }}" {{ 'selected' if r.timer.mode == k }}>{{ t }}</option>{% endfor %}</select></div>
+        {{ rf('Timer duration', 'timer_span', (r.timer.span ~ 's') if r.timer.span else '', 'e.g. 1h30m (elapsed: already running)', 20) }}
+        {{ rf('Party size (current)', 'party_cur', r.party[0] if r.party else '', '1', 2) }}
+        {{ rf('Party size (max)', 'party_max', r.party[1] if r.party else '', '5', 2) }}
+        {{ rf('Application ID', 'app_id', r.app_id, '17-20 digit ID', 20) }}
+        {{ rf('Stream URL (streaming only)', 'url', r.url, 'https://twitch.tv/…', 300) }}
+      </div>
+      <aside class="rpc-prev"><div class="rp-head" id="rpHead">Playing</div>
+        <div class="rp-row"><div class="rp-art"><img id="rpBig" alt="" hidden referrerpolicy="no-referrer"><img id="rpSmallImg" class="rp-small" alt="" hidden referrerpolicy="no-referrer"></div>
+          <div class="rp-text"><b id="rpName"></b><span id="rpDetails"></span><span id="rpStateLine"></span><span id="rpTime"></span></div></div>
+        <div class="rp-btns" id="rpBtns"></div>
+        <small class="muted">Preview only. Discord renders the final look.</small></aside>
+    </div>
+    <div class="inline"><button class="btn btn-primary" type="submit">Save &amp; apply</button><button class="btn btn-danger" type="button" id="rpcClear">Clear activity</button></div>
+  </form>
+</div></section>
+
+<section class="tab-panel" data-panel="automation"><div class="cards">
+  <article class="cmd-card"><h4>Auto-react</h4><p class="muted">React with an emoji to every message from a user.</p>
+    <form id="reactForm" class="inline"><input class="input" id="reactUser" placeholder="User ID" inputmode="numeric" required><input class="input" id="reactEmoji" placeholder="Emoji" maxlength="64" required><button class="btn btn-primary">{{ icon('plus', 15) }}</button></form>
+    <div class="list" id="reactList"></div></article>
+  <article class="cmd-card"><h4>Auto-reply</h4><p class="muted">Reply when a message contains the trigger.</p>
+    <form id="replyForm" class="form"><input class="input" id="replyTrigger" placeholder="Trigger text" required><input class="input" id="replyText" placeholder="Reply" required><button class="btn btn-primary">{{ icon('plus', 15) }} Add</button></form>
+    <div class="list" id="replyList"></div></article>
+  <form class="cmd-card" id="afkForm"><h4>AFK mode</h4><p class="muted">Tells people who ping or DM you that you're away. Turns off when you send a message.</p>
+    <input class="input" id="afkReason" maxlength="200" placeholder="Reason" value="{{ settings.afk.reason }}">
+    <label class="switch-row"><span>AFK is <b id="afkState">{{ 'ON' if settings.afk.on else 'off' }}</b></span><span class="switch"><input type="checkbox" id="afkOn" {{ 'checked' if settings.afk.on }}><i></i></span></label>
+    <button class="btn btn-primary">Save</button></form>
+</div></section>
+<section class="tab-panel" data-panel="moderation"><div class="cards">
+  <form class="cmd-card cmd wide" id="modForm"><h4>Moderate a member</h4><p class="muted">Runs as this account, so it only works in servers where it has the permission. Reasons appear in the server's audit log.</p>
+    <select class="input" name="guild_id" required><option value="">Choose server…</option>{% for s in servers %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select>
+    <input class="input" name="user_id" placeholder="User ID" inputmode="numeric" required>
+    <input class="input" name="reason" placeholder="Reason (optional)" maxlength="400">
+    <input class="input" name="duration" placeholder="Mute duration: 30m, 2h, 1d (max 28d, default 10m)" maxlength="8">
+    <div class="acct-actions"><button type="button" class="btn btn-danger" data-mod="ban">Ban</button><button type="button" class="btn" data-mod="unban">Unban</button><button type="button" class="btn btn-danger" data-mod="kick">Kick</button><button type="button" class="btn" data-mod="mute">Mute</button><button type="button" class="btn" data-mod="unmute">Unmute</button></div>
+    <div class="out" hidden></div></form>
+{% include "_chantools.html" %}
+</div></section>
+{% include "_fun_tab.html" %}
+<script>window.SETTINGS = {{ settings|tojson }};</script>
+{% endblock %}

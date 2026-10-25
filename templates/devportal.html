@@ -1,0 +1,31 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'devportal' %}
+{% block title %}Developer Portal · AetherPanel{% endblock %}
+{% block crumb %}DISCORD / DEVELOPER PORTAL{% endblock %}
+{% block heading %}Developer <span>portal.</span>{% endblock %}
+{% block content %}
+{% if a.state != 'online' %}<div class="banner warn">{{ icon('power', 18) }}<div><b>{{ a.label }} is {{ a.state }}.</b> Applications are loaded through the bot, so it needs to be online.</div><button class="btn btn-sm btn-primary" data-power="start" data-id="{{ a.id }}">{{ icon('play', 15) }} Start bot</button></div>{% endif %}
+<div class="banner warn">{{ icon('lock', 18) }}<div><b>About tokens.</b> Discord never shows an existing bot token again - “Reveal token” <b>resets</b> it and shows the new one once. Anything still using the old token is logged out. Tokens are only kept in your browser tab for 90 seconds and are never stored.</div></div>
+<div class="stats-grid three">
+  <article class="stat-card"><div class="stat-top"><span>Applications</span></div><strong id="dpApps">—</strong></article>
+  <article class="stat-card"><div class="stat-top"><span>Teams</span></div><strong id="dpTeams">—</strong></article>
+  <article class="stat-card"><div class="stat-top"><span>With a bot user</span></div><strong id="dpBots">—</strong></article>
+</div>
+<div class="tabs" data-tabs>
+  <button class="tab active" data-tab="apps">{{ icon('code', 16) }} Applications</button>
+  <button class="tab" data-tab="teams">{{ icon('friends', 16) }} Teams</button>
+</div>
+<section class="tab-panel active" data-panel="apps">
+  <div class="dp-toolbar">
+    <div class="search-row">{{ icon('search', 18) }}<input id="dpSearch" placeholder="Search applications…" autocomplete="off"></div>
+    <select class="input" id="dpTeamFilter" aria-label="Owner"><option value="">All applications</option><option value="__personal">Personal only</option></select>
+    <a class="btn btn-sm" href="https://discord.com/developers/applications" target="_blank" rel="noopener">{{ icon('arrow', 14) }} Open the portal</a>
+    <button class="btn btn-sm" id="dpRefresh" type="button">{{ icon('refresh', 14) }} Refresh</button>
+  </div>
+  <div class="dp-grid" id="dpAppList"><div class="empty-state">Loading applications…</div></div>
+</section>
+<section class="tab-panel" data-panel="teams">
+  <div class="dp-grid" id="dpTeamList"><div class="empty-state">Loading teams…</div></div>
+</section>
+{% endblock %}

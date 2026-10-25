@@ -1,0 +1,47 @@
+{# Vanity sniper tab for the Snipers page. Settings live in the existing "vanity" setting used by the bot's !vanity command. #}
+{% set v = settings.vanity %}
+<section class="tab-panel" data-panel="vanity">
+  <div class="stats-grid four">
+    <article class="stat-card"><div class="stat-top"><span>Status</span></div><strong id="vnStatState" class="{{ 'lime-text' if v.enabled }}">{{ 'On' if v.enabled else 'Off' }}</strong></article>
+    <article class="stat-card"><div class="stat-top"><span>Watching</span></div><strong id="vnStatWatch">{{ v.watch|length }}</strong></article>
+    <article class="stat-card"><div class="stat-top"><span>Check every</span></div><strong id="vnStatInterval">{{ v.interval }}s</strong></article>
+    <article class="stat-card"><div class="stat-top"><span>Servers tracked</span></div><strong>{{ v.known|length }}</strong></article>
+  </div>
+  <div class="content-grid">
+    <div class="stack">
+      <article class="panel">
+        <div class="panel-head"><div><div class="eyebrow">WATCH LIST</div><h3>Vanity codes</h3></div><button class="btn btn-sm" id="vnCheckAll" type="button">{{ icon('refresh', 14) }} Check all</button></div>
+        <form class="inline" id="vnAddForm"><input class="input" name="code" placeholder="discord.gg/… or just the code" maxlength="60" autocomplete="off" required><button class="btn btn-primary">{{ icon('plus', 15) }} Watch</button></form>
+        <div class="list" id="vnWatchList"><div class="empty-state">Loading…</div></div>
+        <p class="muted small">You get a webhook alert the moment a watched code becomes free. “Check” asks Discord live (about one lookup per second).</p>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><div><div class="eyebrow">QUICK CHECK</div><h3>Is it free?</h3></div></div>
+        <form class="inline" id="vnQuick"><input class="input" name="code" placeholder="Any vanity code" maxlength="60" autocomplete="off" required><button class="btn">Check</button></form>
+        <div class="out" id="vnQuickOut" hidden></div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><div><div class="eyebrow">YOUR SERVERS</div><h3>Vanity URLs you have</h3></div></div>
+        <div class="table-wrap"><table><thead><tr><th>SERVER</th><th>VANITY</th></tr></thead><tbody>
+          {% set ns = namespace(n=0) %}
+          {% for s in servers %}{% set code = v.known.get(s.id|string, '') %}{% if code %}{% set ns.n = ns.n + 1 %}<tr><td>{{ s.name }}</td><td class="mono">discord.gg/{{ code }}</td></tr>{% endif %}{% endfor %}
+          {% if not ns.n %}<tr><td colspan="2" class="empty-state">No server vanities tracked yet. Turn the sniper on and start the bot.</td></tr>{% endif %}
+        </tbody></table></div>
+      </article>
+    </div>
+    <form class="panel form" id="vnForm">
+      <div class="panel-head"><div><div class="eyebrow">SETTINGS</div><h3>Vanity sniper</h3></div></div>
+      <label class="switch-row big"><span>Watch vanity codes and alert me</span><span class="switch"><input type="checkbox" name="enabled" {{ 'checked' if v.enabled }}><i></i></span></label>
+      <label>Check every (seconds, 10 - 3600)</label><input class="input" name="interval" type="number" min="10" max="3600" value="{{ v.interval }}">
+      <label class="switch-row"><span>Alert when a code becomes free</span><span class="switch"><input type="checkbox" name="notify_free" {{ 'checked' if v.notify_free }}><i></i></span></label>
+      <label class="switch-row"><span>Alert when one of my servers' vanity changes</span><span class="switch"><input type="checkbox" name="notify_changes" {{ 'checked' if v.notify_changes }}><i></i></span></label>
+      <label>Alert webhook URL {% if v.webhook_url %}<span class="chip lime">saved</span>{% elif settings.giveaway.webhook_url %}<span class="chip">using giveaway webhook</span>{% endif %}</label>
+      <input class="input" name="webhook_url" type="password" placeholder="{{ 'Saved - leave empty to keep' if v.webhook_url else 'https://discord.com/api/webhooks/…' }}" autocomplete="off">
+      {% if v.webhook_url %}<label class="switch-row"><span>Remove saved webhook</span><span class="switch"><input type="checkbox" name="clear_webhook"><i></i></span></label>{% endif %}
+      <div class="two"><div><label>Webhook name</label><input class="input" name="webhook_name" maxlength="80" value="{{ v.webhook_name }}"></div><div><label>Webhook avatar link</label><input class="input" name="webhook_avatar" maxlength="300" value="{{ v.webhook_avatar }}" placeholder="https://…"></div></div>
+      <div class="inline"><button class="btn btn-primary" type="submit">Save settings</button><button class="btn" type="button" id="vnTest">Send test alert</button></div>
+      <p class="muted small">The sniper alerts you through the webhook; it never changes your servers. The same settings are used by the <span class="mono">{{ settings.prefix }}vanity</span> chat command.</p>
+    </form>
+  </div>
+</section>
+<script>window.VANITY = {{ {'watch': v.watch, 'interval': v.interval, 'enabled': v.enabled}|tojson }};</script>

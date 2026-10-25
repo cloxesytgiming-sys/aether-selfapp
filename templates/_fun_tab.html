@@ -1,0 +1,52 @@
+{# Fun tab for the Commands page. The forms use the generic `form.cmd` handler in app.js (action "fun"). #}
+{% macro opt_target() -%}
+<div class="target" data-target>
+  <label>Also post it in chat (optional)</label>
+  <div class="two">
+    <select class="input t-server" aria-label="Server"><option value="">Don't send - preview only</option><option value="dm">Direct messages</option>{% for s in servers %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select>
+    <select class="input t-channel" name="channel_id" aria-label="Channel"><option value="">Choose channel…</option></select>
+  </div>
+</div>
+{%- endmacro %}
+{% set meters = ['gay','simp','cute','smart','rich','lucky','cool','sus','dumb','toxic','based','savage','evil','nerd','lazy','drunk'] %}
+{% set pair = ['hug','kiss','kick','slap','pat','cuddle','poke','bite','punch','tickle','highfive','handhold','feed','yeet'] %}
+{% set solo = ['wave','dance','cry','laugh','blush','wink','smug','pout','stare','nom'] %}
+<section class="tab-panel" data-panel="fun"><div class="cards">
+  <form class="cmd-card cmd" data-action="fun"><h4>How … meter</h4><p class="muted">How gay, simp, cute… is someone? Same answer for the same person all day.</p>
+    <input type="hidden" name="kind" value="meter">
+    <select class="input" name="name" required>{% for m in meters %}<option value="{{ m }}">how{{ m }}</option>{% endfor %}</select>
+    <input class="input" name="user_id" placeholder="User ID (empty = you)" inputmode="numeric">
+    {{ opt_target() }}
+    <button class="btn btn-primary">Run</button><div class="out" hidden></div></form>
+
+  <form class="cmd-card cmd" data-action="fun"><h4>Ship</h4><p class="muted">Love compatibility and a ship name for two people.</p>
+    <input type="hidden" name="kind" value="ship">
+    <input class="input" name="user_id" placeholder="First user ID (empty = you)" inputmode="numeric">
+    <input class="input" name="user2_id" placeholder="Second user ID" inputmode="numeric" required>
+    {{ opt_target() }}
+    <button class="btn btn-primary">Ship them</button><div class="out" hidden></div></form>
+
+  <form class="cmd-card cmd" data-action="fun"><h4>Hug · kiss · kick · more</h4><p class="muted">Anime GIF actions. <b>Kick</b> here is the fun one - real kicks are in Moderation.</p>
+    <input type="hidden" name="kind" value="action">
+    <select class="input" name="name" required><optgroup label="Needs a target">{% for m in pair %}<option value="{{ m }}">{{ m }}</option>{% endfor %}</optgroup><optgroup label="Solo">{% for m in solo %}<option value="{{ m }}">{{ m }}</option>{% endfor %}</optgroup></select>
+    <div class="two"><input class="input" name="user_id" placeholder="From ID (empty = you)" inputmode="numeric"><input class="input" name="user2_id" placeholder="To user ID" inputmode="numeric"></div>
+    {{ opt_target() }}
+    <button class="btn btn-primary">Send</button><div class="out" hidden></div></form>
+
+  <form class="cmd-card cmd" data-action="fun"><h4>Mini games</h4><p class="muted">8ball, coin flip, dice, roast and compliment.</p>
+    <input type="hidden" name="kind" value="misc">
+    <select class="input" name="name" required><option value="8ball">8ball</option><option value="flip">flip a coin</option><option value="roll">roll dice</option><option value="roast">roast</option><option value="compliment">compliment</option></select>
+    <input class="input" name="arg" placeholder="Dice: 2d6, d20 (only for roll)" maxlength="8">
+    <input class="input" name="user_id" placeholder="User ID (roast / compliment, empty = you)" inputmode="numeric">
+    {{ opt_target() }}
+    <button class="btn btn-primary">Go</button><div class="out" hidden></div></form>
+
+  <article class="cmd-card wide"><h4>Chat commands</h4><p class="muted">Type these in Discord as this account (prefix <b class="mono">{{ settings.prefix }}</b>). <span class="mono">{{ settings.prefix }}fun</span> lists them in chat, <span class="mono">{{ settings.prefix }}help fun</span> too.</p>
+    <div class="table-wrap"><table><thead><tr><th>TYPE</th><th>COMMANDS</th></tr></thead><tbody>
+      <tr><td>Meters</td><td class="mono">{% for m in meters %}how{{ m }} {% endfor %}· how &lt;meter&gt; [user]</td></tr>
+      <tr><td>Ship</td><td class="mono">ship @user [@user]</td></tr>
+      <tr><td>Actions</td><td class="mono">{% for m in pair %}{{ 'fkick' if m == 'kick' else m }} {% endfor %}</td></tr>
+      <tr><td>Solo</td><td class="mono">{% for m in solo %}{{ m }} {% endfor %}</td></tr>
+      <tr><td>Games</td><td class="mono">8ball · flip · roll 2d6 · rate · roast · compliment · choose a | b · rps</td></tr>
+    </tbody></table></div></article>
+</div></section>

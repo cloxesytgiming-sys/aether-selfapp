@@ -1,0 +1,53 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'snipers' %}
+{% block title %}Snipers · AetherPanel{% endblock %}
+{% block crumb %}CONTROL / SNIPERS{% endblock %}
+{% block heading %}Auto <span>snipers.</span>{% endblock %}
+{% block content %}
+{% if a.state != 'online' %}<div class="banner warn">{{ icon('power', 18) }}<div><b>{{ a.label }} is {{ a.state }}.</b> Snipers only run while the bot is online.</div><button class="btn btn-sm btn-primary" data-power="start" data-id="{{ a.id }}">{{ icon('play', 15) }} Start bot</button></div>{% endif %}
+<div class="tabs" data-tabs>
+  <button class="tab active" data-tab="nitro">{{ icon('bolt', 16) }} Nitro sniper</button>
+  <button class="tab" data-tab="giveaway">{{ icon('gift', 16) }} Giveaway sniper</button>
+  <button class="tab" data-tab="vanity">{{ icon('link', 16) }} Vanity sniper</button>
+</div>
+
+{% for kind, title, ic in [('nitro', 'Nitro sniper', 'bolt'), ('giveaway', 'Giveaway sniper', 'gift')] %}
+<section class="tab-panel {{ 'active' if kind == 'nitro' }}" data-panel="{{ kind }}">
+  <div class="stats-grid {{ 'four' if kind == 'giveaway' else 'three' }}">
+    <article class="stat-card"><div class="stat-top"><span>Seen</span></div><strong data-sn="{{ kind }}.seen">{{ sniper[kind].seen }}</strong></article>
+    <article class="stat-card"><div class="stat-top"><span>{{ 'Claimed' if kind == 'nitro' else 'Joined' }}</span></div><strong class="lime-text" data-sn="{{ kind }}.success">{{ sniper[kind].success }}</strong></article>
+    <article class="stat-card"><div class="stat-top"><span>Failed</span></div><strong data-sn="{{ kind }}.failed">{{ sniper[kind].failed }}</strong></article>
+    {% if kind == 'giveaway' %}<article class="stat-card"><div class="stat-top"><span>Wins 🎉</span></div><strong class="lime-text" data-sn="giveaway.wins">{{ sniper.giveaway.wins }}</strong></article>{% endif %}
+  </div>
+  <div class="content-grid">
+    <article class="panel">
+      <div class="panel-head"><div><div class="eyebrow">HISTORY</div><h3>{{ title }} results</h3></div></div>
+      <div class="table-wrap"><table><thead><tr><th>RESULT</th><th>{{ 'CODE' if kind == 'nitro' else 'GIVEAWAY' }}</th><th>WHERE</th><th>SPEED</th><th>TIME</th></tr></thead><tbody id="sn-{{ kind }}"></tbody></table></div>
+    </article>
+    <form class="panel form sn-form" data-kind="{{ kind }}">
+      <div class="panel-head"><div><div class="eyebrow">SETTINGS</div><h3>{{ title }}</h3></div></div>
+      <label class="switch-row big"><span>{{ 'Redeem Nitro gift links automatically' if kind == 'nitro' else 'Enter giveaways automatically' }}</span><span class="switch"><input type="checkbox" name="enabled" {{ 'checked' if settings[kind].enabled }}><i></i></span></label>
+      {% if kind == 'nitro' %}
+      <label>Delay before redeeming (ms)</label><input class="input" name="delay_ms" type="number" min="0" max="10000" value="{{ settings.nitro.delay_ms }}">
+      <p class="muted small">Watches every message this account can see for discord.gift links and tries to redeem each code once.</p>
+      {% else %}
+      <label>Trigger words (comma separated)</label><input class="input" name="triggers" value="{{ settings.giveaway.triggers|join(', ') }}">
+      <label>Ignore messages containing</label><input class="input" name="ignore_words" value="{{ settings.giveaway.ignore_words|join(', ') }}" placeholder="e.g. ended">
+      <label class="switch-row"><span>Click “Enter / Join” buttons</span><span class="switch"><input type="checkbox" name="use_buttons" {{ 'checked' if settings.giveaway.use_buttons }}><i></i></span></label>
+      <label class="switch-row"><span>React with the giveaway emoji</span><span class="switch"><input type="checkbox" name="use_reactions" {{ 'checked' if settings.giveaway.use_reactions }}><i></i></span></label>
+      <div class="two"><div><label>Min delay (s)</label><input class="input" name="min_delay" type="number" min="0" max="120" step="0.5" value="{{ settings.giveaway.min_delay }}"></div><div><label>Max delay (s)</label><input class="input" name="max_delay" type="number" min="0" max="120" step="0.5" value="{{ settings.giveaway.max_delay }}"></div></div>
+      <p class="muted small">Only <b>bot</b> messages that contain a trigger word are entered, with one emoji (🎉, or the one the message names) or the join button, after a random delay.</p>
+      <label class="switch-row"><span>Win alerts (pings with “congrats / won”)</span><span class="switch"><input type="checkbox" name="win_alerts" {{ 'checked' if settings.giveaway.win_alerts }}><i></i></span></label>
+      <label>Win words (comma separated)</label><input class="input" name="win_keywords" value="{{ settings.giveaway.win_keywords|join(', ') }}">
+      <label>Win webhook URL {% if settings.giveaway.webhook_url %}<span class="chip lime">saved</span>{% endif %}</label><input class="input" name="webhook_url" type="password" placeholder="{{ 'Saved - leave empty to keep' if settings.giveaway.webhook_url else 'https://discord.com/api/webhooks/…' }}" autocomplete="off">
+      {% if settings.giveaway.webhook_url %}<label class="switch-row"><span>Remove saved webhook</span><span class="switch"><input type="checkbox" name="clear_webhook"><i></i></span></label>{% endif %}
+      {% endif %}
+      <label>Ignore these server IDs (comma separated)</label><input class="input" name="blacklist" value="{{ settings[kind].blacklist|join(', ') }}" placeholder="Optional">
+      <button class="btn btn-primary" type="submit">Save settings</button>
+    </form>
+  </div>
+</section>
+{% endfor %}
+{% include "_vanity_panel.html" %}
+{% endblock %}

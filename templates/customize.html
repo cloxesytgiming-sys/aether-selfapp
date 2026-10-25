@@ -1,0 +1,77 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'customize' %}
+{% block title %}Customize · AetherPanel{% endblock %}
+{% block crumb %}SYSTEM / CUSTOMIZE{% endblock %}
+{% block heading %}Make it <span>yours.</span>{% endblock %}
+{% macro color(key, label) -%}
+<label class="cz-color"><span>{{ label }}</span><input type="color" data-k="{{ key }}" value="{{ theme[key] }}"><code data-hex="{{ key }}">{{ theme[key] }}</code></label>
+{%- endmacro %}
+{% macro slider(key, label, lo, hi, unit='') -%}
+<label class="cz-range"><span>{{ label }} <b data-out="{{ key }}">{{ theme[key] }}</b>{{ unit }}</span><input type="range" data-k="{{ key }}" min="{{ lo }}" max="{{ hi }}" value="{{ theme[key] }}"></label>
+{%- endmacro %}
+{% block content %}
+<div class="banner">{{ icon('palette', 18) }}<div><b>Changes preview live.</b> Press <b>Save</b> to keep them. Your look is stored per sign-in, so every licence key can have its own.</div></div>
+<div class="cz-layout">
+  <div class="stack">
+    <article class="panel">
+      <div class="panel-head"><div><div class="eyebrow">QUICK START</div><h3>Presets</h3></div></div>
+      <div class="cz-presets" id="czPresets">{% for name, p in presets.items() %}<button type="button" class="cz-preset" data-preset="{{ name }}" style="--a:{{ p.accent }};--b:{{ p.accent2 }};--c:{{ p.bg }}"><i></i><span>{{ name|capitalize }}</span></button>{% endfor %}</div>
+    </article>
+    <article class="panel form">
+      <div class="panel-head"><div><div class="eyebrow">COLOURS</div><h3>Palette</h3></div></div>
+      <div class="cz-grid">{{ color('accent', 'Accent') }}{{ color('accent2', 'Second accent') }}{{ color('bg', 'Background') }}{{ color('surface', 'Cards & panels') }}{{ color('text', 'Text') }}{{ color('muted', 'Muted text') }}</div>
+    </article>
+    <article class="panel form">
+      <div class="panel-head"><div><div class="eyebrow">BACKGROUND</div><h3>Wallpaper</h3></div></div>
+      <label>Type</label>
+      <select class="input" data-k="bg_mode"><option value="default">Default (dots + glow)</option><option value="solid">Solid colour</option><option value="gradient">Gradient</option><option value="image">Image</option></select>
+      <div id="czGradient" hidden>
+        <div class="cz-grid">{{ color('bg_color2', 'Gradient end colour') }}</div>
+        {{ slider('bg_angle', 'Angle', 0, 360, '°') }}
+      </div>
+      <div id="czImage" hidden>
+        <label>Image link (https://…)</label><input class="input" data-k="bg_image" placeholder="https://example.com/wallpaper.jpg" autocomplete="off">
+        <div class="inline" style="margin-top:8px"><input class="input" type="file" id="czFile" accept="image/png,image/jpeg,image/gif,image/webp"><button class="btn" type="button" id="czUpload">Upload</button></div>
+        <p class="muted small">PNG, JPEG, GIF or WebP up to 6 MB. Uploading replaces your previous upload.</p>
+        {{ slider('bg_overlay', 'Darken', 0, 90, '%') }}
+        {{ slider('bg_blur', 'Blur', 0, 24, 'px') }}
+      </div>
+    </article>
+    <article class="panel form">
+      <div class="panel-head"><div><div class="eyebrow">SHAPE &amp; EFFECTS</div><h3>Look and feel</h3></div></div>
+      {{ slider('panel_opacity', 'Card opacity', 30, 100, '%') }}
+      {{ slider('glass_blur', 'Glass blur', 0, 40, 'px') }}
+      {{ slider('radius', 'Corner roundness', 0, 180, '%') }}
+      {{ slider('scale', 'Interface size', 80, 125, '%') }}
+      <label class="switch-row"><span>Glowing background lights</span><span class="switch"><input type="checkbox" data-k="glow"><i></i></span></label>
+      <label class="switch-row"><span>Dotted grid</span><span class="switch"><input type="checkbox" data-k="grid"><i></i></span></label>
+      <label>Font</label>
+      <select class="input" data-k="font">{% for f in fonts %}<option value="{{ f }}">{{ f|capitalize }}</option>{% endfor %}</select>
+    </article>
+  </div>
+  <div class="stack">
+    <article class="panel form">
+      <div class="panel-head"><div><div class="eyebrow">BRAND</div><h3>Name &amp; tagline</h3></div></div>
+      <label>Sidebar title (empty = AetherSelf)</label><input class="input" data-k="brand_title" maxlength="24" placeholder="AetherSelf">
+      <label>Tagline (empty = DISCORD SELFBOT)</label><input class="input" data-k="brand_tag" maxlength="32" placeholder="DISCORD SELFBOT">
+      <p class="muted small">Brand text updates after you save.</p>
+    </article>
+    <article class="panel form">
+      <div class="panel-head"><div><div class="eyebrow">ADVANCED</div><h3>Custom CSS</h3></div></div>
+      <textarea class="input mono" data-k="custom_css" rows="7" maxlength="4000" placeholder=".panel { border-color: hotpink; }" spellcheck="false"></textarea>
+      <p class="muted small">Applied last, only for your sign-in. Remove it here if you break the layout.</p>
+    </article>
+    <article class="panel form">
+      <div class="panel-head"><div><div class="eyebrow">KEEP IT</div><h3>Save &amp; share</h3></div></div>
+      <button class="btn btn-primary" type="button" id="czSave">Save theme</button>
+      <div class="inline"><button class="btn" type="button" id="czExport">Export JSON</button><button class="btn" type="button" id="czImportBtn">Import JSON</button><input type="file" id="czImport" accept="application/json" hidden></div>
+      <button class="btn btn-danger" type="button" id="czReset">Reset to default</button>
+    </article>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>window.THEME = {{ theme|tojson }}; window.THEME_PRESETS = {{ presets|tojson }};</script>
+<script src="{{ url_for('static', filename='js/customize.js') }}"></script>
+{% endblock %}

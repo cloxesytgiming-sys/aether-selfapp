@@ -1,0 +1,15 @@
+{# HypeSquad badge picker for the Overview page. Uses the worker action "hypesquad". #}
+<article class="panel">
+  <div class="panel-head"><div><div class="eyebrow">PROFILE</div><h3>HypeSquad badge</h3></div></div>
+  <form class="form" id="hsForm">
+    <label for="hsHouse">House</label>
+    <select class="input" id="hsHouse" {{ 'disabled' if a.state != 'online' }}>
+      <option value="1">🟣 House Bravery</option>
+      <option value="2">🔴 House Brilliance</option>
+      <option value="3">🟢 House Balance</option>
+      <option value="leave">✖ Remove badge</option>
+    </select>
+    <button class="btn btn-primary" type="submit" {{ 'disabled' if a.state != 'online' }}>Apply badge</button>
+    {% if a.state != 'online' %}<p class="muted small">Start the bot to change the badge.</p>{% else %}<p class="muted small">Changes this account's HypeSquad house. Discord limits how often it can be changed.</p>{% endif %}
+  </form>
+</article>

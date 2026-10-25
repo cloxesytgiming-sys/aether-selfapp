@@ -1,0 +1,18 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'servers' %}
+{% block title %}Servers · AetherPanel{% endblock %}
+{% block crumb %}WORKSPACE / SERVERS{% endblock %}
+{% block heading %}Your <span>servers.</span>{% endblock %}
+{% block content %}
+<article class="panel">
+  <div class="search-row">{{ icon('search', 18) }}<input id="serverSearch" placeholder="Search {{ servers|length }} servers…" autocomplete="off"><kbd>{{ servers|length }}</kbd></div>
+  <div class="srv-grid" id="srvGrid">
+    {% for s in servers %}
+    <div class="srv-card" data-name="{{ s.name|lower }}"><span class="avatar md sq">{% if s.icon %}<img src="{{ s.icon }}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">{% endif %}<b>{{ s.name[:1]|upper }}</b></span>
+      <div><b>{{ s.name }}{% if s.owner %} <span class="chip lime">{{ icon('crown', 12) }} Owner</span>{% endif %}</b><small>{{ '{:,}'.format(s.members) }} members · ID {{ s.id }}</small></div></div>
+    {% else %}<div class="empty-state">No server data yet. Start the bot, then refresh data from the overview.</div>{% endfor %}
+  </div>
+  {% if snap_updated %}<p class="muted small" style="margin-top:14px">Updated {{ snap_updated|ago }}</p>{% endif %}
+</article>
+{% endblock %}

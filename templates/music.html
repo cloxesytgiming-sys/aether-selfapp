@@ -1,0 +1,45 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'music' %}
+{% block title %}Music · AetherPanel{% endblock %}
+{% block crumb %}CONTROL / MUSIC{% endblock %}
+{% block heading %}Music <span>player.</span>{% endblock %}
+{% block content %}
+<div class="banner warn" id="mBanner" hidden></div>
+<div class="music-layout">
+  <section class="music-main">
+    <form class="music-search" id="mSearch">
+      <div class="search-row">{{ icon('search', 18) }}<input id="mQ" placeholder="Song, artist, or a Spotify / YouTube link" autocomplete="off" required></div>
+      <select class="input" id="mSource" aria-label="Source"><option value="auto">Auto</option><option value="spotify">Spotify</option><option value="youtube">YouTube</option></select>
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+    <div class="m-collection" id="mCollection" hidden></div>
+    <div class="m-results" id="mResults"><div class="empty-state">Search for a song, or paste a Spotify / YouTube link (tracks, albums and playlists work).</div></div>
+  </section>
+
+  <aside class="music-side">
+    <article class="panel" id="vcPanel">
+      <div class="panel-head"><div><div class="eyebrow">LAVALINK</div><h3>Voice channel player</h3></div><span class="pill" id="vcPill">offline</span></div>
+      <div class="form">
+        <label>Account</label>
+        <select class="input" id="vcAcc"></select>
+        <div class="two"><div><label>Server</label><select class="input" id="vcGuild"><option value="">Choose server…</option></select></div>
+        <div><label>Voice channel</label><select class="input" id="vcChan"><option value="">Choose channel…</option></select></div></div>
+        <button class="btn btn-sm" id="vcHere" type="button">Use the channel this account is in now</button>
+      </div>
+      <div class="vc-now" id="vcNow"><div class="empty-state">Nothing playing in voice.</div></div>
+      <div class="vc-controls" id="vcControls" hidden>
+        <div class="m-ctrls"><button class="btn btn-sm" id="vcPause" type="button">⏸ Pause</button><button class="btn btn-sm" id="vcSkip" type="button">⏭ Skip</button><button class="btn btn-sm btn-danger" id="vcStop" type="button">⏹ Stop &amp; leave</button></div>
+        <div class="two"><div><label>Volume <b id="vcVolText">100</b>%</label><input type="range" id="vcVol" min="0" max="150" value="100"></div>
+        <div><label>Loop</label><select class="input" id="vcLoop"><option value="off">Off</option><option value="track">This song</option><option value="queue">Whole queue</option></select></div></div>
+        <div class="list" id="vcQueue"></div>
+      </div>
+    </article>
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}
+{% set ml = [] %}{% for x in accounts %}{% set _ = ml.append({'id': x.id, 'name': x.display_name or x.label, 'label': x.label, 'state': x.state}) %}{% endfor %}
+<script>window.MUSIC = {{ {'accounts': ml, 'current': current.id if current else None}|tojson }};</script>
+<script src="{{ url_for('static', filename='js/music.js') }}"></script>
+{% endblock %}

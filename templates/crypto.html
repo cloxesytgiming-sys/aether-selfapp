@@ -1,0 +1,64 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'crypto' %}
+{% block title %}Crypto · Aether{% endblock %}
+{% block crumb %}TOOLS / CRYPTO{% endblock %}
+{% block heading %}Crypto <span>market.</span>{% endblock %}
+{% block content %}
+<section class="stats-grid three" id="cgGlobal">
+  <article class="stat-card"><div class="stat-top"><span>Total market cap</span><span class="stat-icon blue">{{ icon('coins', 20) }}</span></div><strong class="sm" id="gMcap">—</strong><div class="stat-foot"><span class="trend" id="gChange">24H</span><span class="muted" id="gCoins"></span></div></article>
+  <article class="stat-card"><div class="stat-top"><span>24h volume</span><span class="stat-icon lime">{{ icon('chart', 20) }}</span></div><strong class="sm" id="gVol">—</strong><div class="stat-foot"><span class="trend lime-text">GLOBAL</span><span class="muted">All markets</span></div></article>
+  <article class="stat-card"><div class="stat-top"><span>Dominance</span><span class="stat-icon violet">{{ icon('trend', 20) }}</span></div><strong class="sm" id="gDom">—</strong><div class="stat-foot"><span class="trend">BTC · ETH</span><span class="muted"><i class="pulse offline" id="liveDot"></i> <span id="liveText">connecting…</span></span></div></article>
+</section>
+
+<div class="tabs" data-tabs>
+  <button class="tab active" data-tab="market">{{ icon('chart', 16) }} Market</button>
+  <button class="tab" data-tab="movers">{{ icon('trend', 16) }} Trending &amp; movers</button>
+  <button class="tab" data-tab="wallets">{{ icon('wallet', 16) }} Wallets</button>
+</div>
+
+<section class="tab-panel active" data-panel="market">
+  <article class="panel" id="detailPanel" hidden>
+    <div class="panel-head"><div><div class="eyebrow" id="dSym">COIN</div><h3 id="dName">—</h3><div class="detail-price"><b id="dPrice">—</b> <span id="dChange"></span></div></div>
+      <div class="filter-wrap"><div class="seg" id="rangeSeg">{% for d, l in [('1','24H'),('7','7D'),('30','30D'),('90','90D'),('365','1Y')] %}<button class="seg-btn {{ 'active' if d == '7' }}" data-days="{{ d }}">{{ l }}</button>{% endfor %}</div><button class="icon-btn" id="detailClose">{{ icon('x', 16) }}</button></div></div>
+    <div class="chart" id="bigChart"></div>
+  </article>
+  <article class="panel">
+    <div class="search-row">{{ icon('search', 18) }}<input id="coinSearch" placeholder="Search any coin…" autocomplete="off"><select id="vsSel" class="vs-sel"><option value="usd">USD</option><option value="eur">EUR</option><option value="gbp">GBP</option><option value="inr">INR</option><option value="jpy">JPY</option><option value="btc">BTC</option></select></div>
+    <div class="table-wrap"><table class="coin-table"><thead><tr><th>#</th><th>COIN</th><th>PRICE</th><th>1H</th><th>24H</th><th>7D</th><th>MARKET CAP</th><th>7D CHART</th></tr></thead><tbody id="coinRows"><tr><td colspan="8" class="empty-state">Loading market…</td></tr></tbody></table></div>
+    <div class="panel-foot"><span id="pageInfo">Page 1</span><span class="filter-wrap"><button class="btn btn-sm" id="prevPage">‹ Prev</button><button class="btn btn-sm" id="nextPage">Next ›</button></span></div>
+  </article>
+</section>
+
+<section class="tab-panel" data-panel="movers"><div class="content-grid">
+  <article class="panel"><div class="panel-head"><div><div class="eyebrow">COINAETH</div><h3>Trending now</h3></div></div><div class="list" id="trendList"><div class="empty-state">Loading…</div></div></article>
+  <div class="stack">
+    <article class="panel"><div class="panel-head"><div><div class="eyebrow">TOP 100</div><h3>Biggest gainers (24h)</h3></div></div><div class="list" id="gainList"></div></article>
+    <article class="panel"><div class="panel-head"><div><div class="eyebrow">TOP 100</div><h3>Biggest losers (24h)</h3></div></div><div class="list" id="loseList"></div></article>
+  </div>
+</div></section>
+
+<section class="tab-panel" data-panel="wallets"><div class="content-grid">
+  <article class="panel">
+    <div class="panel-head"><div><div class="eyebrow">THIS ACCOUNT</div><h3>Saved wallets</h3></div><span class="chip lime" id="portTotal">Portfolio —</span></div>
+    <div class="alloc" id="allocBar"></div>
+    <div class="list" id="walletList"></div>
+    <p class="muted small" style="margin-top:12px">In Discord, run <b class="mono">{{ settings.prefix }}crypto &lt;coin&gt;</b> (for example <b class="mono">{{ settings.prefix }}crypto btc</b>) to post that address. <b class="mono">{{ settings.prefix }}crypto list</b> shows every saved coin.</p>
+  </article>
+  <div class="stack">
+    <form class="panel form" id="walletForm">
+      <div class="panel-head"><div><div class="eyebrow">ADD / UPDATE</div><h3>Wallet</h3></div></div>
+      <div class="banner warn compact">{{ icon('shield', 16) }}<div>Only save <b>public deposit addresses</b>. Never paste a private key or seed phrase.</div></div>
+      <label>Coin (search or type a symbol)</label><input class="input" id="wCoin" list="coinHints" placeholder="btc, eth, usdt…" autocomplete="off" required><datalist id="coinHints"></datalist>
+      <div class="two"><div><label>Network (optional)</label><input class="input" id="wNet" placeholder="TRC20, ERC20…" maxlength="30"></div><div><label>Amount held (optional)</label><input class="input" id="wAmt" type="number" min="0" step="any" placeholder="0"></div></div>
+      <label>Address</label><input class="input" id="wAddr" placeholder="Public address" autocomplete="off" required>
+      <label>Note (optional)</label><input class="input" id="wNote" maxlength="120">
+      <button class="btn btn-primary" type="submit">{{ icon('plus', 15) }} Save wallet</button>
+    </form>
+    <article class="panel form"><div class="panel-head"><div><div class="eyebrow">MULTI-ACCOUNT</div><h3>Copy wallets</h3></div></div>
+      <select class="input" id="importFrom"><option value="">Copy from another account…</option>{% for x in accounts if x.id != a.id %}<option value="{{ x.id }}">{{ x.label }}</option>{% endfor %}</select>
+      <button class="btn" id="importBtn">Import (keeps existing)</button></article>
+  </div>
+</div></section>
+<script>window.SETTINGS = {{ settings|tojson }};</script>
+{% endblock %}

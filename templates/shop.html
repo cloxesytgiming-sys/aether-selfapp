@@ -1,0 +1,41 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'shop' %}
+{% block title %}Shop · AetherPanel{% endblock %}
+{% block crumb %}DISCORD / SHOP{% endblock %}
+{% block heading %}Discord <span>shop.</span>{% endblock %}
+{% block content %}
+{% if a.state != 'online' %}<div class="banner warn">{{ icon('power', 18) }}<div><b>{{ a.label }} is {{ a.state }}.</b> The shop is loaded through the bot, so it needs to be online.</div><button class="btn btn-sm btn-primary" data-power="start" data-id="{{ a.id }}">{{ icon('play', 15) }} Start bot</button></div>{% endif %}
+<div class="shop-layout" id="shopRoot" data-name="{{ a.display_name or a.label }}" data-username="{{ a.username or a.label }}" data-avatar="{{ a.avatar_url or '' }}">
+  <section class="shop-main">
+    <div class="shop-toolbar">
+      <div class="shop-filter" id="shopKinds">
+        <button type="button" class="active" data-kind="all">All <em id="cAll">0</em></button>
+        <button type="button" data-kind="decoration">Decorations <em id="cDecoration">0</em></button>
+        <button type="button" data-kind="nameplate">Nameplates <em id="cNameplate">0</em></button>
+        <button type="button" data-kind="effect">Profile effects <em id="cEffect">0</em></button>
+      </div>
+      <div class="shop-controls">
+        <div class="search-row">{{ icon('search', 18) }}<input id="shopSearch" placeholder="Search by name…" autocomplete="off"></div>
+        <select class="input" id="shopCat" aria-label="Category"><option value="">All collections</option></select>
+        <button class="btn btn-sm" id="shopRefresh" type="button">{{ icon('refresh', 14) }} Reload</button>
+      </div>
+    </div>
+    <div class="shop-grid" id="shopGrid"><div class="empty-state">Loading the shop…</div></div>
+    <div class="shop-more"><button class="btn" id="shopMore" type="button" hidden>Show more</button></div>
+  </section>
+  <aside class="panel shop-preview">
+    <div class="panel-head"><div><div class="eyebrow">PREVIEW</div><h3>On your profile</h3></div><button class="btn btn-sm" id="pvClear" type="button">Clear</button></div>
+    <div class="pv-card" id="pvCard">
+      <div class="pv-banner"></div>
+      <div class="pv-fx" id="pvFx"></div>
+      <div class="pv-av" id="pvAv"><img class="pv-avatar" id="pvAvatar" alt=""><img class="pv-deco" id="pvDeco" alt="" hidden></div>
+      <div class="pv-body"><b id="pvName">You</b><small id="pvUser"></small></div>
+    </div>
+    <div class="pv-label">Member list</div>
+    <div class="pv-row" id="pvRow"><video id="pvVideo" muted loop playsinline hidden></video><img class="pv-row-av" id="pvRowAv" alt=""><span id="pvRowName">You</span></div>
+    <div class="pv-slots" id="pvSlots"></div>
+    <div class="pv-info" id="pvInfo"><p class="muted small">Pick any decoration, nameplate or profile effect on the left to try it on. You can combine one of each. Previews are approximate - Discord renders the final look.</p></div>
+  </aside>
+</div>
+{% endblock %}

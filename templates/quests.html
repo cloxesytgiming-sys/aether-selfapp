@@ -1,0 +1,29 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'quests' %}
+{% block title %}Quests · AetherPanel{% endblock %}
+{% block crumb %}CONTROL / QUESTS{% endblock %}
+{% block heading %}Discord <span>quests.</span>{% endblock %}
+{% block content %}
+{% if a.state != 'online' %}<div class="banner warn">{{ icon('power', 18) }}<div><b>{{ a.label }} is {{ a.state }}.</b> The list below is the last saved copy. Start the bot to refresh it or complete quests.</div><button class="btn btn-sm btn-primary" data-power="start" data-id="{{ a.id }}">{{ icon('play', 15) }} Start bot</button></div>{% endif %}
+<div class="banner info">{{ icon('shield', 18) }}<div><b>Quest completer.</b> Supports "play a game" and "watch a video" quests. Discord's servers time-gate progress, so a 15-minute quest takes about 15 minutes. Rewards are never claimed automatically - claim them in Discord. Faking quest progress breaks Discord's rules and can get an account flagged.</div></div>
+
+<div class="quest-actions">
+  <div class="tabs" data-tabs id="questTabs">
+    <button class="tab active" data-tab="all">All <em class="nav-badge soft" data-qc="all">0</em></button>
+    <button class="tab" data-tab="new">New <em class="nav-badge soft" data-qc="new">0</em></button>
+    <button class="tab" data-tab="available">Available <em class="nav-badge soft" data-qc="available">0</em></button>
+    <button class="tab" data-tab="running">Running <em class="nav-badge soft" data-qc="running">0</em></button>
+    <button class="tab" data-tab="paused">Paused <em class="nav-badge soft" data-qc="paused">0</em></button>
+    <button class="tab" data-tab="completed">Completed <em class="nav-badge soft" data-qc="completed">0</em></button>
+  </div>
+  <div class="filter-wrap">
+    <button class="btn btn-sm" id="qRefresh">{{ icon('refresh', 14) }} Refresh</button>
+    <button class="btn btn-sm btn-primary" id="qStartAll">{{ icon('play', 14) }} Complete all</button>
+    <button class="btn btn-sm btn-danger" id="qPauseAll">{{ icon('stop', 14) }} Pause all</button>
+  </div>
+</div>
+<div class="quest-grid" id="questGrid"><div class="empty-state">Loading…</div></div>
+<p class="muted small" id="questUpdated" style="margin-top:14px"></p>
+<p class="muted small">Status guide: <b>new</b> = started in the last 3 days and not accepted · <b>available</b> = ready to accept/start · <b>running</b> = being completed now · <b>paused</b> = accepted, progress saved, idle · <b>completed</b> = done (claim the reward in Discord).</p>
+{% endblock %}

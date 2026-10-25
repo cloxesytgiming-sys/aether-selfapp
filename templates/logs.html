@@ -1,0 +1,18 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'logs' %}
+{% block title %}Logs · AetherPanel{% endblock %}
+{% block crumb %}SYSTEM / LOGS{% endblock %}
+{% block heading %}Account <span>logs.</span>{% endblock %}
+{% block content %}
+<article class="panel">
+  <div class="panel-head"><div><div class="eyebrow">{{ a.label|upper }} · {{ total }} EVENTS</div><h3>Event timeline</h3></div>
+    <div class="filter-wrap">
+      <select id="categoryFilter" aria-label="Filter by category"><option value="ALL">All events</option><option value="ROLE">My roles</option><option value="FRIEND">Friends</option><option value="DM">DMs</option><option value="PING">Pings</option><option value="GUILD">Servers</option><option value="SNIPER">Snipers</option><option value="SYSTEM">System</option></select>
+      <button class="icon-btn" id="refreshBtn" title="Refresh">{{ icon('refresh', 18) }}</button>
+      <button class="icon-btn danger" id="clearLogs" title="Clear logs">{{ icon('trash', 18) }}</button></div></div>
+  <div class="search-row">{{ icon('search', 18) }}<input id="searchInput" placeholder="Search logs…" autocomplete="off"><kbd>LIVE</kbd></div>
+  <div class="table-wrap"><table><thead><tr><th>EVENT</th><th>DETAIL</th><th>SERVER / USER</th><th>TIME</th></tr></thead><tbody id="logRows"></tbody></table></div>
+  <div class="panel-foot"><span><i class="pulse"></i> Only events for this account · refreshes automatically</span><span id="lastRefresh"></span></div>
+</article>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% from "_icons.html" import sprite %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#060a13">
+  <title>{% block title %}AetherPanel{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" type="image/png" href="{{ url_for('assets', filename='logo.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/extra.css') }}">
+  <style id="themeStyle">{{ theme_css|safe }}</style>
+</head>
+<body data-page="{{ page or '' }}">
+{{ sprite() }}
+<div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+{% block body %}{% endblock %}
+<div class="toasts" id="toasts"></div>
+<script>window.BOOT = {{ {'accountId': current.id if current else None, 'lastNotifId': last_notif_id or 0, 'page': page or '', 'state': current.state if current else None}|tojson }};</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/extra.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

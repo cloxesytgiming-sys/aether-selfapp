@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% macro av(url, label, cls='') -%}
+<span class="avatar {{ cls }}">{% if url %}<img src="{{ url }}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">{% endif %}<b>{{ (label or '?')[:1]|upper }}</b></span>
+{%- endmacro %}
+{% block body %}
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <button class="icon-btn sm drawer-close" id="menuClose" type="button" aria-label="Close menu">{{ icon('x', 16) }}</button>
+    <a class="brand" href="/"><span class="brand-icon logo"><img src="{{ url_for('assets', filename='logo.png') }}" alt="AetherSelf"></span><span>{% if theme and theme.brand_title %}{{ theme.brand_title }}{% else %}Aether<span class="brand-light">Self</span>{% endif %}<small>{{ (theme.brand_tag if theme and theme.brand_tag else 'DISCORD SELFBOT')|upper }}</small></span></a>
+
+    <div class="acct-switch">
+      {% if current %}
+      <button class="acct-current" type="button" id="acctBtn">
+        <span class="avatar sm">{% if current.avatar_url %}<img src="{{ current.avatar_url }}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">{% endif %}<b>{{ (current.label or '?')[:1]|upper }}</b><i class="dot {{ current.state }}" data-state-dot="{{ current.id }}"></i></span>
+        <span class="acct-meta"><b>{{ current.display_name or current.label }}</b><small>{% if current.username %}@{{ current.username }}{% else %}{{ current.label }}{% endif %}</small></span>
+        {{ icon('chev', 16) }}
+      </button>
+      <div class="acct-menu" id="acctMenu" hidden>
+        {% for x in accounts %}
+        <button type="button" class="acct-opt {{ 'active' if x.id == current.id }}" data-switch="{{ x.id }}">
+          <span class="avatar sm">{% if x.avatar_url %}<img src="{{ x.avatar_url }}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">{% endif %}<b>{{ (x.label or '?')[:1]|upper }}</b><i class="dot {{ x.state }}" data-state-dot="{{ x.id }}"></i></span>
+          <span class="acct-meta"><b>{{ x.display_name or x.label }}</b><small>{{ x.label }} · <span data-state-text="{{ x.id }}">{{ x.state }}</span></small></span>
+        </button>
+        {% endfor %}
+        <a class="acct-opt" href="/accounts">{{ icon('plus', 16) }}<span class="acct-meta"><b>Manage accounts</b></span></a>
+      </div>
+      {% else %}
+      <a class="acct-current" href="/accounts">{{ icon('plus', 18) }}<span class="acct-meta"><b>Add an account</b><small>Start here</small></span></a>
+      {% endif %}
+    </div>
+
+    <div class="nav-label">WORKSPACE</div>
+    <a class="nav-item {{ 'active' if page == 'overview' }}" href="/">{{ icon('overview') }} Overview</a>
+    <a class="nav-item {{ 'active' if page == 'servers' }}" href="/servers">{{ icon('servers') }} Servers</a>
+    <div class="nav-label">CONTROL</div>
+    <a class="nav-item {{ 'active' if page == 'commands' }}" href="/commands">{{ icon('terminal') }} Commands</a>
+    <a class="nav-item {{ 'active' if page == 'snipers' }}" href="/snipers">{{ icon('target') }} Snipers</a>
+    <a class="nav-item {{ 'active' if page == 'quests' }}" href="/quests">{{ icon('flag') }} Quests</a>
+    <a class="nav-item {{ 'active' if page == 'crypto' }}" href="/crypto">{{ icon('coins') }} Crypto</a>
+    <a class="nav-item {{ 'active' if page == 'music' }}" href="/music">{{ icon('music') }} Music</a>
+    <div class="nav-label">DISCORD</div>
+    <a class="nav-item {{ 'active' if page == 'inbox' }}" href="/inbox">{{ icon('mail') }} Inbox <em class="nav-badge" id="unreadBadge" {% if not unread %}hidden{% endif %}>{{ unread }}</em></a>
+    <a class="nav-item {{ 'active' if page == 'friends' }}" href="/friends">{{ icon('friends') }} Friends</a>
+    <a class="nav-item {{ 'active' if page == 'cloner' }}" href="/cloner">{{ icon('clone') }} Cloner</a>
+    <a class="nav-item {{ 'active' if page == 'shop' }}" href="/shop">{{ icon('shop') }} Shop</a>
+    <a class="nav-item {{ 'active' if page == 'devportal' }}" href="/devportal">{{ icon('code') }} Dev Portal</a>
+    <div class="nav-label">SYSTEM</div>
+    <a class="nav-item {{ 'active' if page == 'logs' }}" href="/logs">{{ icon('list') }} Logs</a>
+    <a class="nav-item {{ 'active' if page == 'accounts' }}" href="/accounts">{{ icon('key') }} Accounts</a>
+    <a class="nav-item {{ 'active' if page == 'customize' }}" href="/customize">{{ icon('palette') }} Customize</a>
+
+    <div class="sidebar-bottom">
+      {% if current %}
+      <div class="status-mini"><span class="pulse {{ 'offline' if current.state != 'online' }}" data-state-pulse="{{ current.id }}"></span><div><b data-state-label="{{ current.id }}">{{ {'online': 'Bot online', 'starting': 'Starting…', 'offline': 'Bot offline'}[current.state] }}</b><small>{{ current.label }}</small></div>
+        <button class="icon-btn sm" id="quickPower" type="button" data-id="{{ current.id }}" title="Start / stop">{{ icon('power', 16) }}</button></div>
+      {% endif %}
+      <form action="/logout" method="post"><button class="logout" type="submit">{{ icon('logout', 17) }} Sign out</button></form>
+      {% if license_text %}<p class="license-chip">{{ icon('key', 13) }} License · {{ license_text }}</p>{% endif %}
+      <p class="sidebar-foot">AETHERSELF <span>•</span> v2.2</p>
+    </div>
+  </aside>
+  <div class="nav-backdrop" id="navBackdrop"></div>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="top-left"><button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">{{ icon('menu', 20) }}</button><div><div class="eyebrow">{% block crumb %}WORKSPACE{% endblock %}</div><h1>{% block heading %}{% endblock %}</h1></div></div>
+      <div class="top-right">
+        {% if current %}<span class="live-pill"><i class="pulse {{ 'offline' if current.state != 'online' }}" data-state-pulse="{{ current.id }}"></i><span data-state-label-caps="{{ current.id }}">{{ {'online': 'LIVE', 'starting': 'STARTING', 'offline': 'OFFLINE'}[current.state] }}</span></span>{% endif %}
+        <a class="icon-btn bell" href="/inbox#notifications" title="Notifications">{{ icon('bell', 18) }}<em class="nav-badge" id="bellBadge" {% if not unread %}hidden{% endif %}>{{ unread }}</em></a>
+        {% if current %}{{ av(current.avatar_url, current.label, 'chip') }}{% endif %}
+      </div>
+    </header>
+    {% block content %}{% endblock %}
+    <footer class="footer"><span>© AETHERSELF · BUILT FOR PERFORMANCE</span><span>AETHER <i></i> THE GOAT</span></footer>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'inbox' %}
+{% block title %}Inbox · AetherPanel{% endblock %}
+{% block crumb %}DISCORD / INBOX{% endblock %}
+{% block heading %}Messages &amp; <span>alerts.</span>{% endblock %}
+{% block content %}
+{% if a.state != 'online' %}<div class="banner warn">{{ icon('power', 18) }}<div><b>{{ a.label }} is {{ a.state }}.</b> Reading and sending DMs needs the bot online. Past notifications are still shown.</div><button class="btn btn-sm btn-primary" data-power="start" data-id="{{ a.id }}">{{ icon('play', 15) }} Start bot</button></div>{% endif %}
+<div class="tabs" data-tabs>
+  <button class="tab active" data-tab="dms">{{ icon('mail', 16) }} Direct messages</button>
+  <button class="tab" data-tab="notifications">{{ icon('bell', 16) }} Notifications <em class="nav-badge" id="tabBadge" hidden></em></button>
+</div>
+
+<section class="tab-panel active" data-panel="dms">
+  <div class="dm-layout">
+    <article class="panel dm-list-panel">
+      <div class="search-row">{{ icon('search', 18) }}<input id="dmSearch" placeholder="Search conversations…" autocomplete="off"></div>
+      <div class="dm-list" id="dmList"><div class="empty-state">Loading…</div></div>
+    </article>
+    <article class="panel dm-chat-panel">
+      <div class="panel-head"><div><div class="eyebrow">CONVERSATION</div><h3 id="dmTitle">Select a chat</h3></div><button class="icon-btn" id="dmRefresh" title="Reload">{{ icon('refresh', 18) }}</button></div>
+      <div class="chat" id="chat"><div class="empty-state">Pick a conversation on the left.</div></div>
+      <div class="chat-compose">
+        <div class="mention-pop" id="mentionPop" hidden></div>
+        <div class="reply-bar" id="replyBar" hidden></div>
+        <form class="chat-send" id="chatForm"><input class="input" id="chatInput" placeholder="Write a message…  (type @ to mention)" maxlength="2000" autocomplete="off" disabled><button class="btn btn-primary" disabled>{{ icon('send', 15) }}</button></form>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="tab-panel" data-panel="notifications">
+  <div class="content-grid">
+    <article class="panel">
+      <div class="panel-head"><div><div class="eyebrow">DMS · PINGS · FRIENDS · SNIPES</div><h3>Notifications</h3></div>
+        <div class="filter-wrap"><select id="notifKind"><option value="all">All</option><option value="dm">DMs</option><option value="ping">Pings</option><option value="friend">Friends</option><option value="sniper">Snipers</option><option value="win">Wins</option><option value="quest">Quests</option></select>
+        <button class="btn btn-sm" id="markAll">{{ icon('check', 14) }} Mark all read</button></div></div>
+      <div class="notif-list" id="notifList"></div>
+    </article>
+    <article class="panel form" id="notifSettings">
+      <div class="panel-head"><div><div class="eyebrow">PREFERENCES</div><h3>Alerts</h3></div></div>
+      <label class="switch-row"><span>Notify on direct messages</span><span class="switch"><input type="checkbox" id="nDms" {{ 'checked' if settings.notify.dms }}><i></i></span></label>
+      <label class="switch-row"><span>Notify when I'm pinged</span><span class="switch"><input type="checkbox" id="nPings" {{ 'checked' if settings.notify.pings }}><i></i></span></label>
+      <button class="btn" id="browserNotif">{{ icon('bell', 15) }} Enable browser alerts</button>
+      <button class="btn btn-danger" id="clearNotifs">{{ icon('trash', 15) }} Clear all</button>
+      <p class="muted small">Alerts show here and as pop-ups while the dashboard is open. Only a 200-character preview is stored.</p>
+    </article>
+  </div>
+</section>
+{% endblock %}

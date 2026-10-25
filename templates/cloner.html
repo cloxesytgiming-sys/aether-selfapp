@@ -1,0 +1,46 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'cloner' %}
+{% block title %}Server cloner · AetherPanel{% endblock %}
+{% block crumb %}DISCORD / CLONER{% endblock %}
+{% block heading %}Server <span>cloner.</span>{% endblock %}
+{% block content %}
+{% if a.state != 'online' %}<div class="banner warn">{{ icon('power', 18) }}<div><b>{{ a.label }} is {{ a.state }}.</b> The cloner runs on the selected account, so it needs to be online.</div><button class="btn btn-sm btn-primary" data-power="start" data-id="{{ a.id }}">{{ icon('play', 15) }} Start bot</button></div>{% endif %}
+<div class="cl-layout">
+  <div class="stack">
+    <article class="panel form" id="clSetup">
+      <div class="panel-head"><div><div class="eyebrow">SOURCE &amp; TARGET</div><h3>Pick the servers</h3></div><button class="btn btn-sm" id="clReload" type="button">{{ icon('refresh', 14) }} Reload</button></div>
+      <label>Source server (copy from)</label>
+      <select class="input" id="clSource"><option value="">Loading servers…</option></select>
+      <div class="chips" id="clSrcInfo"></div>
+      <label>Target server (copy into)</label>
+      <select class="input" id="clTarget"><option value="">Loading servers…</option></select>
+      <p class="muted small" id="clTgtInfo">Only servers where this account has Manage Channels and Manage Roles can be a target.</p>
+    </article>
+    <article class="panel form">
+      <div class="panel-head"><div><div class="eyebrow">WHAT TO COPY</div><h3>Options</h3></div></div>
+      <label class="switch-row cl-danger"><span>Delete all channels in the target first</span><span class="switch"><input type="checkbox" data-o="delete_channels"><i></i></span></label>
+      <label class="switch-row cl-danger"><span>Delete all roles in the target first</span><span class="switch"><input type="checkbox" data-o="delete_roles"><i></i></span></label>
+      <label class="switch-row"><span>Roles <small class="muted">with permissions, colours, order</small></span><span class="switch"><input type="checkbox" data-o="roles" checked><i></i></span></label>
+      <label class="switch-row"><span>Categories <small class="muted">with permission overwrites</small></span><span class="switch"><input type="checkbox" data-o="categories" checked><i></i></span></label>
+      <label class="switch-row"><span>Channels <small class="muted">text, voice, announcement, stage, forum, media + overwrites</small></span><span class="switch"><input type="checkbox" data-o="channels" checked><i></i></span></label>
+      <label class="switch-row"><span>Emojis &amp; stickers</span><span class="switch"><input type="checkbox" data-o="emojis" checked><i></i></span></label>
+      <label class="switch-row"><span>Server info <small class="muted">name, icon, banner, description, settings</small></span><span class="switch"><input type="checkbox" data-o="info" checked><i></i></span></label>
+      <label>Messages</label>
+      <select class="input" id="clMessages"><option value="none">Don't copy messages</option><option value="all">Chat + media</option><option value="media">Only media files &amp; photos</option><option value="chat">Only chat messages</option></select>
+      <label>Messages per channel (1 - 300)</label>
+      <input class="input" id="clLimit" type="number" min="1" max="300" value="100">
+      <button class="btn btn-primary" id="clStart" type="button" {{ 'disabled' if a.state != 'online' }}>{{ icon('clone', 15) }} Start cloning</button>
+    </article>
+  </div>
+  <aside class="stack">
+    <article class="panel" id="clProgress">
+      <div class="panel-head"><div><div class="eyebrow">PROGRESS</div><h3 id="clTitle">Idle</h3></div><button class="btn btn-sm btn-danger" id="clCancel" type="button" hidden>Stop</button></div>
+      <div class="list" id="clSteps"><div class="empty-state">Nothing has run yet.</div></div>
+      <div class="cl-stats" id="clStats"></div>
+      <div class="list" id="clNotes"></div>
+    </article>
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/cloner.js') }}"></script>{% endblock %}

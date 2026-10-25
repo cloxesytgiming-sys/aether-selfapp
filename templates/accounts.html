@@ -1,0 +1,56 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'accounts' %}
+{% block title %}Accounts · AetherPanel{% endblock %}
+{% block crumb %}SYSTEM / ACCOUNTS{% endblock %}
+{% block heading %}Your <span>accounts.</span>{% endblock %}
+{% block content %}
+<div class="banner info">{{ icon('shield', 18) }}<div><b>Aether NEVER Saves Your Token. </b></div></div>
+
+<section class="content-grid">
+  <article class="panel">
+    <div class="panel-head"><div><div class="eyebrow">TOKENS</div><h3>Saved accounts</h3></div></div>
+    <div class="acct-list" id="acctList">
+      {% for x in accounts or [] %}
+      <div class="acct-card" data-id="{{ x.id }}">
+        <div class="acct-card-top">
+          <span class="avatar md">{% if x.avatar_url %}<img src="{{ x.avatar_url }}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">{% endif %}<b>{{ (x.label or '?')[:1]|upper }}</b><i class="dot {{ x.state }}" data-state-dot="{{ x.id }}"></i></span>
+          <div class="acct-card-meta"><b>{{ x.display_name or x.label }}</b><small>{{ x.label }}{% if x.username %} · @{{ x.username }}{% endif %}</small><small class="mono">{{ x.token_masked }}</small></div>
+          <span class="pill {{ x.state }}" data-state-pill="{{ x.id }}">{{ x.state }}</span>
+        </div>
+        {% if x.last_error and x.state == 'offline' %}<p class="error">{{ x.last_error }}</p>{% endif %}
+        <div class="acct-actions">
+          {% if x.state == 'offline' %}<button class="btn btn-sm btn-primary" data-power="start" data-id="{{ x.id }}">{{ icon('play', 14) }} Start</button>
+          {% else %}<button class="btn btn-sm" data-power="restart" data-id="{{ x.id }}">{{ icon('refresh', 14) }} Restart</button><button class="btn btn-sm btn-danger" data-power="stop" data-id="{{ x.id }}">{{ icon('stop', 14) }} Stop</button>{% endif %}
+          <button class="btn btn-sm" data-switch="{{ x.id }}">{{ 'Selected' if current and current.id == x.id else 'Use this account' }}</button>
+          <button class="btn btn-sm" data-console="{{ x.id }}">{{ icon('terminal', 14) }} Console</button>
+          <button class="btn btn-sm" data-edit="{{ x.id }}" data-label="{{ x.label }}">Edit</button>
+          <button class="btn btn-sm btn-danger" data-delete="{{ x.id }}" data-label="{{ x.label }}">{{ icon('trash', 14) }}</button>
+        </div>
+        <label class="switch-row"><span>Start automatically when the dashboard starts</span>
+          <span class="switch"><input type="checkbox" data-autostart="{{ x.id }}" {{ 'checked' if x.auto_start }}><i></i></span></label>
+      </div>
+      {% else %}
+      <div class="empty-state">No accounts yet. Add your first token on the right to get started.</div>
+      {% endfor %}
+    </div>
+  </article>
+
+  <div class="stack">
+    <article class="panel">
+      <div class="panel-head"><div><div class="eyebrow">NEW</div><h3>Add an account</h3></div></div>
+      <form id="addAcct" class="form">
+        <label for="newLabel">Label</label>
+        <input class="input" id="newLabel" placeholder="e.g. Alt 1" maxlength="40" autocomplete="off">
+        <label for="newToken">User token</label>
+        <input class="input" id="newToken" type="password" placeholder="Paste the account token" autocomplete="off" required>
+        <button class="btn btn-primary" type="submit">{{ icon('plus', 16) }} Add account</button>
+      </form>
+    </article>
+    <article class="panel" id="consolePanel" hidden>
+      <div class="panel-head"><div><div class="eyebrow">WORKER OUTPUT</div><h3>Console <span class="muted" id="consoleName"></span></h3></div><button class="icon-btn" id="consoleClose">{{ icon('x', 16) }}</button></div>
+      <pre class="console" id="consoleBox"></pre>
+    </article>
+  </div>
+</section>
+{% endblock %}

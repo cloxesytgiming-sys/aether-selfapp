@@ -1,0 +1,24 @@
+{% extends "app.html" %}
+{% from "_icons.html" import icon %}
+{% set page = 'friends' %}
+{% block title %}Friends · AetherPanel{% endblock %}
+{% block crumb %}DISCORD / FRIENDS{% endblock %}
+{% block heading %}Friends &amp; <span>requests.</span>{% endblock %}
+{% block content %}
+{% if a.state != 'online' %}<div class="banner warn">{{ icon('power', 18) }}<div><b>{{ a.label }} is {{ a.state }}.</b> Start the bot to manage friends.</div><button class="btn btn-sm btn-primary" data-power="start" data-id="{{ a.id }}">{{ icon('play', 15) }} Start bot</button></div>{% endif %}
+<div class="tabs" data-tabs>
+  <button class="tab active" data-tab="friends">{{ icon('members', 16) }} Friends <em class="nav-badge soft" id="cntFriends">0</em></button>
+  <button class="tab" data-tab="requests">{{ icon('mail', 16) }} Requests <em class="nav-badge" id="cntReq" hidden>0</em></button>
+  <button class="tab" data-tab="add">{{ icon('plus', 16) }} Add friend</button>
+</div>
+<section class="tab-panel active" data-panel="friends"><article class="panel">
+  <div class="search-row">{{ icon('search', 18) }}<input id="friendSearch" placeholder="Search friends…" autocomplete="off"><button class="icon-btn sm" id="friendsRefresh" type="button">{{ icon('refresh', 16) }}</button></div>
+  <div class="list" id="friendList"><div class="empty-state">Loading…</div></div></article></section>
+<section class="tab-panel" data-panel="requests"><div class="content-grid">
+  <article class="panel"><div class="panel-head"><div><div class="eyebrow">INCOMING</div><h3>Waiting for you</h3></div></div><div class="list" id="incomingList"></div></article>
+  <article class="panel"><div class="panel-head"><div><div class="eyebrow">OUTGOING</div><h3>You sent</h3></div></div><div class="list" id="outgoingList"></div></article>
+</div></section>
+<section class="tab-panel" data-panel="add"><article class="panel form" style="max-width:520px">
+  <div class="panel-head"><div><div class="eyebrow">NEW</div><h3>Send a friend request</h3></div></div>
+  <form id="addFriend" class="form"><label>Username or user ID</label><input class="input" id="friendUser" placeholder="username or 123456789012345678" required><button class="btn btn-primary">{{ icon('send', 15) }} Send request</button></form></article></section>
+{% endblock %}

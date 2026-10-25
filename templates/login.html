@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Sign in · Aether{% endblock %}
+{% block body %}
+<main class="login-wrap">
+  <div class="brand-mark logo"><img src="{{ url_for('assets', filename='logo.png') }}" alt="AetherSelf"></div>
+  <p class="eyebrow">CONTROL CENTER / 01</p>
+  <h1>Welcome to<br><span>AetherSelf.</span></h1>
+  <p class="muted">Your Discord self operations, in one calm place.</p>
+  <form method="post" class="login-card">
+    <label for="password">License key</label>
+    <div class="field">
+      {{ icon('lock', 18) }}
+      <input id="password" type="password" name="password" placeholder="Enter your licence key...." required autofocus autocomplete="current-password">
+    </div>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <button class="btn btn-primary" type="submit">Login {{ icon('arrow', 16) }}</button>
+  </form>
+  <p class="fine-print">Private access</p>
+</main>
+{% endblock %}

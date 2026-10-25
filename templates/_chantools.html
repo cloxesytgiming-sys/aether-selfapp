@@ -1,0 +1,17 @@
+{# Channel tools card for Commands -> Moderation (lock / unlock / create / rename). Logic: extra.js initChanTools. #}
+<article class="cmd-card wide" id="chanTools">
+  <h4>Channel tools</h4>
+  <p class="muted">Lock or unlock a channel for @everyone, rename it, or create a new one. Needs Manage Channels (and Manage Roles for locking) in that server.</p>
+  <div class="two">
+    <select class="input" id="ctGuild" aria-label="Server"><option value="">Choose server…</option>{% for s in servers %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select>
+    <select class="input" id="ctChan" aria-label="Channel"><option value="">Choose channel…</option></select>
+  </div>
+  <input class="input" id="ctReason" placeholder="Reason (optional, shows in the audit log)" maxlength="200">
+  <div class="acct-actions"><button type="button" class="btn btn-danger" data-ct="lock">🔒 Lock</button><button type="button" class="btn" data-ct="unlock">🔓 Unlock</button></div>
+  <div class="two"><input class="input" id="ctRename" placeholder="New name for the selected channel" maxlength="100"><button type="button" class="btn btn-primary" data-ct="rename">Rename</button></div>
+  <div class="two"><input class="input" id="ctNew" placeholder="Name of the new channel" maxlength="100">
+    <select class="input" id="ctKind" aria-label="Type"><option value="text">Text</option><option value="voice">Voice</option><option value="stage">Stage</option><option value="forum">Forum</option><option value="category">Category</option></select></div>
+  <select class="input" id="ctCat" aria-label="Category"><option value="">No category</option></select>
+  <button type="button" class="btn btn-primary" data-ct="create">Create channel</button>
+  <div class="out" id="ctOut" hidden></div>
+</article>
